@@ -1,36 +1,37 @@
-// // Your code here.
-//  const slider=document.querySelector('.items');
-// 	let isDown=false;
-// let startX;
-// let scrollLeft;
+const container = document.querySelector('.items');
+const cubes = document.querySelectorAll('.item');
 
-// slider.addEventListener('mousedown',(e)=>{
-// 	e.preventDefault();
-// 	isDown=true;
-	
-// 	slider.classList.add('active');
-// 	startX=e.pageX - slider.offsetLeft;
-// 	scrollLeft=slider.scrollLeft;
-// });
+let activeCube = null;
+let offsetX = 0;
+let offsetY = 0;
 
-// slider.addEventListener('mouseleave',()=>{
-// 	isDown=false;
-// 	slider.classList.remove('active');
-// });
+cubes.forEach(cube => {
+  cube.style.position = "absolute";
 
-// slider.addEventListener('mouseup',()=>{
-// 	isDown=false;
-// 	slider.classList.remove('active');
-// });
+  cube.addEventListener("mousedown", (e) => {
+    activeCube = cube;
+    offsetX = e.clientX - cube.offsetLeft;
+    offsetY = e.clientY - cube.offsetTop;
 
-// slider.addEventListener('mousemove',(e)=>{
-// 	if(!isDown) return;
-// 	e.preventDefault();
-// 	const x=e.pageX-slider.offsetLeft;
-// 	const walk=(x-startX)*2;
-// 	slider.scrollLeft=scrollLeft-walk;
-	
-// });
+    cube.style.zIndex = 9999;
+  });
+});
 
+document.addEventListener("mousemove", (e) => {
+  if (!activeCube) return;
 
+  let x = e.clientX - offsetX;
+  let y = e.clientY - offsetY;
 
+  // boundaries
+  x = Math.max(0, Math.min(x, container.clientWidth - activeCube.clientWidth));
+  y = Math.max(0, Math.min(y, container.clientHeight - activeCube.clientHeight));
+
+  activeCube.style.left = x + "px";
+  activeCube.style.top = y + "px";
+});
+
+document.addEventListener("mouseup", () => {
+  if (activeCube) activeCube.style.zIndex = 1;
+  activeCube = null;
+});
