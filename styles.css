@@ -8,15 +8,13 @@ body {
 }
 
 .items {
-  width: 400px;
-  height: 400px;
+  width: 100%;
+  max-width: 984px;
+  height: 400px;          /* ensures container is visible */
   background: #ddd;
   border: 3px solid #333;
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-gap: 10px;
-  padding: 10px;
+  position: relative;      /* required for absolute-positioned cubes */
+  overflow: hidden;
 }
 
 .cube {
@@ -25,7 +23,7 @@ body {
   background: #3498db;
   border-radius: 10px;
   cursor: grab;
-  position: absolute;
+  position: absolute;      /* allows dragging anywhere in container */
   transition: background 0.2s;
 }
 
