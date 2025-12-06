@@ -1,58 +1,68 @@
-const cubes = document.querySelectorAll(".item");
-const area = document.querySelector(".items");
+const container = document.querySelector('.items');
+const items = document.querySelectorAll('.item');
 
-let isDragging = false;
-let activeCube = null;
-let startX, startY;
-let cubeStartLeft, cubeStartTop;
+let activeItem = null;
+let offsetX = 0;
+let offsetY = 0;
 
-cubes.forEach(cube => {
-    
-    cube.addEventListener("mousedown", (e) => {
-        e.preventDefault();
+// Grid configuration
+const gridSize = 120; // distance between cells
+const cols = 5;       // number of columns
+const rows = 5;       // number of rows
 
-        isDragging = true;
-        activeCube = cube;
-        cube.classList.add("dragging");
+// Initialize items in a grid
+items.forEach((item, index) => {
+  const col = index % cols;
+  const row = Math.floor(index / cols);
 
-        // Mouse position at start
-        startX = e.clientX;
-        startY = e.clientY;
+  item.style.left = (col * gridSize) + "px";
+  item.style.top  = (row * gridSize) + "px";
 
-        // Cube's current position
-        const rect = cube.getBoundingClientRect();
-        const areaRect = area.getBoundingClientRect();
+  // Mouse down
+  item.addEventListener("mousedown", (e) => {
+    activeItem = item;
 
-        cubeStartLeft = rect.left - areaRect.left;
-        cubeStartTop = rect.top - areaRect.top;
-    });
+    const rect = item.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+
+    item.style.transition = "none"; 
+  });
 });
 
+// Mouse move
 document.addEventListener("mousemove", (e) => {
-    if (!isDragging || !activeCube) return;
+  if (!activeItem) return;
 
-    const areaRect = area.getBoundingClientRect();
-    const cubeRect = activeCube.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  const itemRect = activeItem.getBoundingClientRect();
 
-    // Calculate movement
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
+  // Calculate new position relative to container
+  let newX = e.clientX - containerRect.left - offsetX;
+  let newY = e.clientY - containerRect.top - offsetY;
 
-    // New intended position
-    let newLeft = cubeStartLeft + dx;
-    let newTop = cubeStartTop + dy;
+  // Boundary constraints
+  newX = Math.max(0, Math.min(newX, containerRect.width - itemRect.width));
+  newY = Math.max(0, Math.min(newY, containerRect.height - itemRect.height));
 
-    // Boundary constraints
-    newLeft = Math.max(0, Math.min(newLeft, areaRect.width - cubeRect.width));
-    newTop = Math.max(0, Math.min(newTop, areaRect.height - cubeRect.height));
-
-    // Apply movement
-    activeCube.style.left = newLeft + "px";
-    activeCube.style.top = newTop + "px";
+  activeItem.style.left = newX + "px";
+  activeItem.style.top  = newY + "px";
 });
 
+// Mouse up
 document.addEventListener("mouseup", () => {
-    if (activeCube) activeCube.classList.remove("dragging");
-    isDragging = false;
-    activeCube = null;
+  if (activeItem) {
+    // Snap to nearest grid
+    const left = parseInt(activeItem.style.left);
+    const top = parseInt(activeItem.style.top);
+
+    const snapX = Math.round(left / gridSize) * gridSize;
+    const snapY = Math.round(top / gridSize) * gridSize;
+
+    activeItem.style.transition = "0.2s";
+    activeItem.style.left = snapX + "px";
+    activeItem.style.top  = snapY + "px"; 
+  }
+
+  activeItem = null;
 });
